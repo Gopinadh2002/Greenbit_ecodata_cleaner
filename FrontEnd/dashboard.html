@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GreenBit — Digital Waste Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg-base:#060f09;
+  --bg-surface:#0b1a10;
+  --bg-card:#0e2016;
+  --bg-card2:#112318;
+  --accent-green:#22c55e;
+  --accent-lime:#86efac;
+  --accent-mint:#6ee7b7;
+  --accent-amber:#f59e0b;
+  --accent-red:#f87171;
+  --accent-blue:#60a5fa;
+  --text-primary:#e8f5ed;
+  --text-secondary:#7aaa88;
+  --text-muted:#3d6b4a;
+  --border-subtle:rgba(34,197,94,0.12);
+  --border-card:rgba(34,197,94,0.18);
+  --glow-green:rgba(34,197,94,0.15);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg-base);
+  color:var(--text-primary);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* Background particles canvas */
+#bg-canvas{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:0;opacity:0.4;
+}
+
+.wrapper{position:relative;z-index:1;display:flex;min-height:100vh}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:280px;min-width:280px;
+  background:var(--bg-surface);
+  border-right:1px solid var(--border-card);
+  display:flex;flex-direction:column;
+  padding:0;position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.sidebar-logo{
+  padding:28px 24px 20px;
+  border-bottom:1px solid var(--border-subtle);
+}
+.sidebar-logo .leaf-icon{
+  width:36px;height:36px;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  border-radius:50% 50% 50% 10%;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:10px;
+  box-shadow:0 0 20px rgba(34,197,94,0.35);
+}
+.sidebar-logo h1{
+  font-family:'Syne',sans-serif;
+  font-size:18px;font-weight:800;
+  color:var(--text-primary);letter-spacing:-0.5px;
+}
+.sidebar-logo p{
+  font-size:11px;color:var(--text-secondary);
+  margin-top:2px;font-style:italic;
+}
+.sidebar-section{padding:20px 24px 16px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-section label{
+  display:block;font-size:10px;font-weight:500;
+  color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;
+  margin-bottom:12px;
+}
+.folder-input{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(34,197,94,0.06);
+  border:1px solid var(--border-card);
+  border-radius:8px;padding:8px 12px;
+  font-size:12px;color:var(--text-secondary);
+}
+.folder-input span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.browse-btn{
+  background:rgba(34,197,94,0.15);
+  border:1px solid rgba(34,197,94,0.3);
+  border-radius:6px;padding:4px 8px;
+  font-size:10px;color:var(--accent-green);
+  cursor:pointer;white-space:nowrap;
+  transition:all 0.2s;
+}
+.browse-btn:hover{background:rgba(34,197,94,0.25)}
+.checkbox-group{display:flex;flex-direction:column;gap:8px}
+.cb-item{display:flex;align-items:center;gap:8px;cursor:pointer}
+.cb-item input{accent-color:var(--accent-green)}
+.cb-item span{font-size:12px;color:var(--text-secondary)}
+.slider-wrap{display:flex;flex-direction:column;gap:6px}
+.slider-row{display:flex;align-items:center;gap:8px}
+.slider-row input[type=range]{
+  flex:1;accent-color:var(--accent-green);
+  height:4px;border-radius:2px;
+}
+.slider-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted)}
+.run-btn{
+  width:100%;padding:12px;
+  background:linear-gradient(135deg,#16a34a,#22c55e);
+  border:none;border-radius:10px;
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:13px;color:#fff;cursor:pointer;
+  letter-spacing:0.5px;
+  box-shadow:0 4px 20px rgba(34,197,94,0.3);
+  transition:all 0.2s;
+}
+.run-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(34,197,94,0.4)}
+.sidebar-stats{padding:20px 24px;margin-top:auto}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0}
+.stat-row span:first-child{font-size:11px;color:var(--text-muted)}
+.stat-row span:last-child{font-size:11px;font-family:'DM Mono',monospace;color:var(--accent-lime)}
+.status-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 8px;border-radius:20px;
+  background:rgba(34,197,94,0.1);
+  border:1px solid rgba(34,197,94,0.25);
+  font-size:10px;color:var(--accent-green);
+}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--accent-green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+
+/* ===== MAIN CONTENT ===== */
+.main{flex:1;padding:32px;overflow-x:hidden}
+
+/* ===== HERO ===== */
+.hero{
+  background:var(--bg-card);
+  border:1px solid var(--border-card);
+  border-radius:20px;padding:28px 32px;
+  margin-bottom:28px;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-60px;right:-60px;
+  width:220px;height:220px;
+  background:radial-gradient(circle,rgba(34,197,94,0.12) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero::after{
+  content:'';position:absolute;bottom:-40px;left:30%;
+  width:300px;height:120px;
+  background:radial-gradient(ellipse,rgba(110,231,183,0.06) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero-top{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.hero-icon{
+  width:50px;height:50px;
+  background:linear-gradient(135deg,rgba(34,197,94,0.2),rgba(16,185,129,0.2));
+  border:1px solid rgba(34,197,94,0.3);
+  border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;
+}
+.hero-title h2{
+  font-family:'Syne',sans-serif;font-size:26px;
+  font-weight:800;letter-spacing:-0.8px;
+  background:linear-gradient(135deg,#86efac,#22c55e);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-title p{font-size:12px;color:var(--text-muted);margin-top:2px;font-style:italic}
+.hero-meta{
+  display:flex;gap:20px;align-items:center;
+  padding-top:14px;border-top:1px solid var(--border-subtle);
+  flex-wrap:wrap;
+}
+.meta-item{display:flex;align-items:center;gap:6px}
+.meta-item .ml{font-size:11px;color:var(--text-muted)}
+.meta-item .mv{font-size:12px;font-family:'DM Mono',monospace;color:var(--text-secondary)}
+.certified-badge{
+  margin-left:auto;
+  background:rgba(34,197,94,0.1);
+  border:1px solid rgba(34,197,94,0.3);
+  border-radius:20px;padding:6px 14px;
+  font-size:11px;font-weight:500;color:var(--accent-green);
+  display:flex;align-items:center;gap:5px;
+}
+
+/* ===== KPI CARDS ===== */
+.kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:14px;margin-bottom:28px;
+}
+.kpi-card{
+  background:var(--bg-card);
+  border:1px solid var(--border-card);
+  border-radius:16px;padding:20px;
+  position:relative;overflow:hidden;
+  transition:transform 0.2s,box-shadow 0.2s;
+  cursor:default;
+}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.kpi-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  border-radius:16px 16px 0 0;
+}
+.kpi-card.green::before{background:linear-gradient(90deg,#22c55e,#4ade80)}
+.kpi-card.amber::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.kpi-card.red::before{background:linear-gradient(90deg,#f87171,#fb923c)}
+.kpi-card.blue::before{background:linear-gradient(90deg,#60a5fa,#34d399)}
+.kpi-icon{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;margin-bottom:12px;
+}
+.kpi-card.green .kpi-icon{background:rgba(34,197,94,0.12)}
+.kpi-card.amber .kpi-icon{background:rgba(245,158,11,0.12)}
+.kpi-card.red .kpi-icon{background:rgba(248,113,113,0.12)}
+.kpi-card.blue .kpi-icon{background:rgba(96,165,250,0.12)}
+.kpi-label{font-size:11px;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px}
+.kpi-value{
+  font-family:'Syne',sans-serif;font-size:28px;font-weight:700;
+  letter-spacing:-1px;color:var(--text-primary);line-height:1;margin-bottom:8px;
+}
+.kpi-card.green .kpi-value{color:#86efac}
+.kpi-card.amber .kpi-value{color:#fbbf24}
+.kpi-card.red .kpi-value{color:#fca5a5}
+.kpi-card.blue .kpi-value{color:#93c5fd}
+.kpi-sub{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:4px}
+.kpi-delta{
+  display:inline-flex;align-items:center;gap:2px;
+  padding:2px 6px;border-radius:20px;font-size:10px;font-weight:500;
+}
+.delta-pos{background:rgba(34,197,94,0.12);color:var(--accent-green)}
+.delta-warn{background:rgba(245,158,11,0.12);color:var(--accent-amber)}
+
+/* ===== GRID SECTIONS ===== */
+.section-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+.section-grid.three{grid-template-columns:1fr 1fr 1fr}
+.section-grid.wide{grid-template-columns:2fr 1fr}
+
+.panel{
+  background:var(--bg-card);
+  border:1px solid var(--border-card);
+  border-radius:16px;padding:22px;
+}
+.panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:18px;
+}
+.panel-title{
+  font-family:'Syne',sans-serif;font-size:14px;font-weight:700;
+  color:var(--text-primary);letter-spacing:-0.3px;
+}
+.panel-badge{
+  font-size:10px;padding:3px 8px;border-radius:20px;
+  background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);
+  color:var(--accent-green);
+}
+
+/* ===== GAUGE SECTION ===== */
+.gauge-wrap{display:flex;flex-direction:column;align-items:center}
+.gauge-svg{width:200px;height:120px;margin:0 auto}
+.gauge-val{
+  text-align:center;margin-top:8px;
+}
+.gauge-number{
+  font-family:'Syne',sans-serif;font-size:32px;font-weight:800;
+  color:#4ade80;letter-spacing:-1px;
+}
+.gauge-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+.roi-badge{
+  margin-top:12px;
+  background:rgba(34,197,94,0.1);
+  border:1px solid rgba(34,197,94,0.25);
+  border-radius:10px;padding:10px 16px;text-align:center;width:100%;
+}
+.roi-badge .roi-num{
+  font-family:'DM Mono',monospace;font-size:20px;
+  color:var(--accent-lime);font-weight:500;
+}
+.roi-badge .roi-label{font-size:10px;color:var(--text-muted);margin-top:2px}
+
+/* ===== EQUIVALENCY CARDS ===== */
+.equiv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.equiv-card{
+  background:rgba(34,197,94,0.05);
+  border:1px solid rgba(34,197,94,0.12);
+  border-radius:12px;padding:14px;text-align:center;
+}
+.equiv-card .eq-icon{font-size:22px;margin-bottom:6px}
+.equiv-card .eq-val{
+  font-family:'DM Mono',monospace;font-size:16px;
+  color:var(--accent-lime);font-weight:500;
+}
+.equiv-card .eq-label{font-size:10px;color:var(--text-muted);margin-top:2px}
+
+/* ===== CHARTS ===== */
+.chart-wrap{position:relative;width:100%}
+
+/* ===== RECOMMENDATIONS ===== */
+.rec-list{display:flex;flex-direction:column;gap:10px}
+.rec-item{
+  border-radius:12px;padding:14px 16px;
+  display:flex;gap:12px;align-items:flex-start;
+}
+.rec-item.high{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.18)}
+.rec-item.med{background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.18)}
+.rec-item.low{background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.14)}
+.rec-dot{
+  width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0;
+}
+.rec-item.high .rec-dot{background:#f87171}
+.rec-item.med .rec-dot{background:#f59e0b}
+.rec-item.low .rec-dot{background:#22c55e}
+.rec-content{}
+.rec-title{font-size:12px;font-weight:500;color:var(--text-primary);margin-bottom:3px}
+.rec-desc{font-size:11px;color:var(--text-muted)}
+.rec-meta{
+  margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;
+}
+.rec-meta span{
+  font-family:'DM Mono',monospace;font-size:10px;
+  padding:2px 6px;border-radius:6px;
+  background:rgba(255,255,255,0.04);
+  color:var(--text-secondary);
+}
+
+/* ===== BEFORE/AFTER ===== */
+.ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.ba-side{border-radius:12px;padding:16px}
+.ba-side.before{
+  background:rgba(248,113,113,0.05);
+  border:1px solid rgba(248,113,113,0.15);
+}
+.ba-side.after{
+  background:rgba(34,197,94,0.05);
+  border:1px solid rgba(34,197,94,0.15);
+}
+.ba-label{font-size:10px;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+.ba-side.before .ba-label{color:#f87171}
+.ba-side.after .ba-label{color:var(--accent-green)}
+.ba-row{display:flex;justify-content:space-between;padding:4px 0;font-size:12px}
+.ba-row span:first-child{color:var(--text-muted)}
+.ba-row span:last-child{font-family:'DM Mono',monospace;color:var(--text-secondary)}
+.ba-saving{
+  background:linear-gradient(135deg,rgba(34,197,94,0.1),rgba(110,231,183,0.06));
+  border:1px solid rgba(34,197,94,0.2);
+  border-radius:12px;padding:12px 16px;
+  display:flex;justify-content:center;gap:28px;align-items:center;flex-wrap:wrap;
+}
+.ba-saving .save-item{text-align:center}
+.ba-saving .save-num{
+  font-family:'Syne',sans-serif;font-size:18px;font-weight:700;
+  color:var(--accent-lime);
+}
+.ba-saving .save-label{font-size:10px;color:var(--text-muted)}
+
+/* ===== PROGRESS TRACKER ===== */
+.progress-list{display:flex;flex-direction:column;gap:0}
+.progress-step{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:10px 0;
+  position:relative;
+}
+.progress-step:not(:last-child)::after{
+  content:'';position:absolute;
+  left:10px;top:32px;bottom:0;width:1px;
+  background:var(--border-subtle);
+}
+.step-dot{
+  width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;font-size:10px;font-weight:600;
+}
+.step-done{background:rgba(34,197,94,0.2);border:1px solid var(--accent-green);color:var(--accent-green)}
+.step-running{
+  background:rgba(245,158,11,0.1);
+  border:1px solid rgba(245,158,11,0.5);
+  color:var(--accent-amber);
+  animation:pulseBorder 1.5s infinite;
+}
+@keyframes pulseBorder{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0.3)}50%{box-shadow:0 0 0 4px rgba(245,158,11,0.1)}}
+.step-wait{background:rgba(255,255,255,0.04);border:1px solid var(--border-subtle);color:var(--text-muted)}
+.step-text{}
+.step-name{font-size:12px;font-weight:500;color:var(--text-primary)}
+.step-detail{font-size:10px;color:var(--text-muted);margin-top:1px}
+.step-bar-wrap{margin-top:6px}
+.step-bar{
+  height:3px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden;
+}
+.step-bar-fill{
+  height:100%;border-radius:2px;
+  background:linear-gradient(90deg,#22c55e,#86efac);
+  animation:barLoad 3s ease-out forwards;
+  width:0%;
+}
+@keyframes barLoad{to{width:61%}}
+
+/* ===== WATERFALL CHART ===== */
+.wf-wrap{display:flex;flex-direction:column;gap:8px}
+.wf-row{display:flex;align-items:center;gap:10px}
+.wf-label{width:140px;font-size:11px;color:var(--text-muted);text-align:right;flex-shrink:0}
+.wf-bar-track{flex:1;height:22px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden;position:relative}
+.wf-bar{height:100%;border-radius:4px;display:flex;align-items:center;padding:0 8px}
+.wf-bar.neg{background:rgba(248,113,113,0.25);border:1px solid rgba(248,113,113,0.35)}
+.wf-bar.pos{background:rgba(34,197,94,0.2);border:1px solid rgba(34,197,94,0.35)}
+.wf-bar.total{background:linear-gradient(90deg,rgba(34,197,94,0.25),rgba(134,239,172,0.2));border:1px solid rgba(34,197,94,0.4)}
+.wf-bar span{font-family:'DM Mono',monospace;font-size:10px;white-space:nowrap}
+.wf-bar.neg span{color:#fca5a5}
+.wf-bar.pos span{color:#86efac}
+.wf-bar.total span{color:#4ade80;font-weight:500}
+
+/* ===== EXPORT SECTION ===== */
+.export-section{margin-top:28px}
+.export-btns{display:flex;flex-wrap:wrap;gap:10px}
+.exp-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:10px 16px;border-radius:10px;
+  border:1px solid var(--border-card);
+  background:rgba(255,255,255,0.02);
+  font-size:12px;color:var(--text-secondary);
+  cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif;
+}
+.exp-btn:hover{
+  background:rgba(34,197,94,0.08);
+  border-color:rgba(34,197,94,0.25);
+  color:var(--accent-green);
+}
+.exp-btn .eicon{font-size:14px}
+.exp-primary{
+  background:rgba(34,197,94,0.12);
+  border-color:rgba(34,197,94,0.3);
+  color:var(--accent-lime);
+}
+
+/* ===== SCATTER CLUSTER ===== */
+.cluster-dots{position:relative;height:200px;overflow:hidden;border-radius:10px;background:rgba(0,0,0,0.2)}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(34,197,94,0.2);border-radius:2px}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1100px){
+  .section-grid{grid-template-columns:1fr}
+  .section-grid.wide{grid-template-columns:1fr}
+}
+@media(max-width:900px){
+  .wrapper{flex-direction:column}
+  .sidebar{width:100%;height:auto;position:static}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+/* Fade-in animation */
+.fade-in{opacity:0;transform:translateY(16px);animation:fadeIn 0.6s forwards}
+@keyframes fadeIn{to{opacity:1;transform:translateY(0)}}
+.delay-1{animation-delay:0.1s}.delay-2{animation-delay:0.2s}.delay-3{animation-delay:0.3s}
+.delay-4{animation-delay:0.4s}.delay-5{animation-delay:0.5s}.delay-6{animation-delay:0.6s}
+
+.section-title{
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:700;
+  color:var(--text-muted);letter-spacing:1.5px;text-transform:uppercase;
+  margin-bottom:16px;display:flex;align-items:center;gap:10px;
+}
+.section-title::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(90deg,var(--border-subtle),transparent);
+}
+
+.full-panel{
+  background:var(--bg-card);border:1px solid var(--border-card);
+  border-radius:16px;padding:22px;margin-bottom:28px;
+}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div class="wrapper">
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="leaf-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2C6.5 2 2 8 2 14c0 4.4 3.6 8 8 8 .8 0 1.6-.1 2.3-.4C9.5 20.4 8 18.4 8 16c0-3.3 2.7-6 6-6 1.8 0 3.4.8 4.5 2 .3-1 .5-2 .5-3C19 5.7 15.9 2 12 2z" fill="#4ade80"/>
+        <path d="M14 10c-3.3 0-6 2.7-6 6s2.7 6 6 6 6-2.7 6-6-2.7-6-6-6z" fill="#22c55e" opacity="0.6"/>
+      </svg>
+    </div>
+    <h1>GreenBit</h1>
+    <p>Digital Waste Analyzer</p>
+  </div>
+
+  <div class="sidebar-section">
+    <label>Target Folder</label>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="text" id="folder-path-input" value="." style="
+        flex:1;
+        background:rgba(34,197,94,0.06);
+        border:1px solid var(--border-card);
+        border-radius:8px;
+        padding:8px 12px;
+        font-size:12px;
+        color:var(--text-secondary);
+        font-family:'Inter',sans-serif;
+      " placeholder="Enter folder path..."/>
+      <button class="browse-btn" onclick="openFolderBrowser()">Browse</button>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <label>File Types</label>
+    <div class="checkbox-group">
+      <label class="cb-item"><input type="checkbox" checked/><span>PDF & Documents</span></label>
+      <label class="cb-item"><input type="checkbox" checked/><span>DOCX & Office</span></label>
+      <label class="cb-item"><input type="checkbox" checked/><span>Source Code</span></label>
+      <label class="cb-item"><input type="checkbox" checked/><span>Images & Media</span></label>
+      <label class="cb-item"><input type="checkbox"/><span>Log Files</span></label>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <label>Sensitivity (DBSCAN ε)</label>
+    <div class="slider-wrap">
+      <div class="slider-row">
+        <input type="range" min="1" max="10" value="5" id="sensitivity-slider"/>
+        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent-lime);min-width:16px" id="sens-val">5</span>
+      </div>
+      <div class="slider-labels"><span>Low</span><span>High</span></div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <button class="run-btn">▶ Run Full Scan</button>
+  </div>
+
+  <div class="sidebar-stats">
+    <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px">Last Scan Stats</div>
+    <div class="stat-row"><span>Date</span><span>12 Apr 2026</span></div>
+    <div class="stat-row"><span>Files</span><span>9,247</span></div>
+    <div class="stat-row"><span>Duration</span><span>4m 32s</span></div>
+    <div class="stat-row"><span>Net Gain</span><span>+1.468 kWh</span></div>
+    <div style="margin-top:12px">
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        Scan Complete
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<main class="main">
+
+  <!-- HERO -->
+  <div class="hero fade-in">
+    <div class="hero-top">
+      <div class="hero-icon">🌿</div>
+      <div class="hero-title">
+        <h2>GreenBit Digital Waste Analyzer</h2>
+        <p>"Scan Smarter. Store Less. Emit Lesser."</p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="ml">Last Scan</span>
+        <span class="mv">12 April 2026, 09:41 AM</span>
+      </div>
+      <div class="meta-item">
+        <span class="ml">Files Indexed</span>
+        <span class="mv">9,247</span>
+      </div>
+      <div class="meta-item">
+        <span class="ml">Scan Time</span>
+        <span class="mv">4m 32s</span>
+      </div>
+      <div class="certified-badge">✅ Green Audit Certified</div>
+    </div>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="section-title fade-in delay-1">Key Metrics</div>
+  <div class="kpi-grid">
+    <div class="kpi-card blue fade-in delay-1">
+      <div class="kpi-icon">🗄️</div>
+      <div class="kpi-label">Total Storage</div>
+      <div class="kpi-value" data-count-decimal="1" data-target="47.3">0</div>
+      <div class="kpi-sub"><span class="kpi-delta delta-pos">GB Scanned</span></div>
+    </div>
+    <div class="kpi-card blue fade-in delay-2">
+      <div class="kpi-icon">📁</div>
+      <div class="kpi-label">Total Files</div>
+      <div class="kpi-value" data-count data-target="9247">0</div>
+      <div class="kpi-sub"><span class="kpi-delta delta-pos">Indexed</span></div>
+    </div>
+    <div class="kpi-card amber fade-in delay-3">
+      <div class="kpi-icon">♻️</div>
+      <div class="kpi-label">Wasted Storage</div>
+      <div class="kpi-value" data-count-decimal="1" data-target="14.7">0</div>
+      <div class="kpi-sub"><span class="kpi-delta delta-warn">⚠ Reclaim 14.7 GB</span></div>
+    </div>
+    <div class="kpi-card green fade-in delay-4">
+      <div class="kpi-icon">🌿</div>
+      <div class="kpi-label">CO₂ Emitted</div>
+      <div class="kpi-value" style="font-size:20px;padding-top:6px">0.00118</div>
+      <div class="kpi-sub"><span class="kpi-delta delta-pos">✅ Very Low</span></div>
+    </div>
+    <div class="kpi-card red fade-in delay-1">
+      <div class="kpi-icon">🔴</div>
+      <div class="kpi-label">Exact Duplicates</div>
+      <div class="kpi-value" data-count data-target="1847">0</div>
+      <div class="kpi-sub">SHA-256 Matched</div>
+    </div>
+    <div class="kpi-card blue fade-in delay-2">
+      <div class="kpi-icon">🔵</div>
+      <div class="kpi-label">Semantic Clusters</div>
+      <div class="kpi-value" data-count data-target="48">0</div>
+      <div class="kpi-sub">DBSCAN Groups</div>
+    </div>
+    <div class="kpi-card green fade-in delay-3">
+      <div class="kpi-icon">⚡</div>
+      <div class="kpi-label">Net Energy Gain</div>
+      <div class="kpi-value" style="font-size:20px;padding-top:6px">+1.468 kWh</div>
+      <div class="kpi-sub"><span class="kpi-delta delta-pos">604:1 ROI</span></div>
+    </div>
+  </div>
+
+  <!-- GAUGE + EQUIVALENCY ROW -->
+  <div class="section-title fade-in delay-2">Environmental Impact</div>
+  <div class="section-grid three fade-in delay-2">
+
+    <!-- Gauge -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Environmental Health</span>
+        <span class="panel-badge">Live</span>
+      </div>
+      <div class="gauge-wrap">
+        <svg class="gauge-svg" viewBox="0 0 200 120">
+          <defs>
+            <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#f87171"/>
+              <stop offset="40%" stop-color="#fbbf24"/>
+              <stop offset="100%" stop-color="#22c55e"/>
+            </linearGradient>
+          </defs>
+          <!-- track -->
+          <path d="M20,100 A80,80 0 0,1 180,100" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="12" stroke-linecap="round"/>
+          <!-- fill -->
+          <path id="gauge-fill" d="M20,100 A80,80 0 0,1 180,100" fill="none" stroke="url(#gaugeGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="251" stroke-dashoffset="251"/>
+          <!-- needle -->
+          <line id="gauge-needle" x1="100" y1="100" x2="100" y2="30" stroke="#4ade80" stroke-width="2" stroke-linecap="round" transform="rotate(-80,100,100)" opacity="0"/>
+          <circle cx="100" cy="100" r="5" fill="#4ade80"/>
+          <!-- labels -->
+          <text x="16" y="118" font-size="9" fill="rgba(248,113,113,0.7)" font-family="DM Mono">Poor</text>
+          <text x="78" y="24" font-size="9" fill="rgba(251,191,36,0.7)" font-family="DM Mono" text-anchor="middle">Mid</text>
+          <text x="168" y="118" font-size="9" fill="rgba(34,197,94,0.7)" font-family="DM Mono">Best</text>
+        </svg>
+        <div class="gauge-val">
+          <div class="gauge-number" id="gauge-number">0</div>
+          <div class="gauge-sub">Environmental Health Score / 100</div>
+        </div>
+        <div class="roi-badge">
+          <div class="roi-num">604 : 1</div>
+          <div class="roi-label">Energy ROI Ratio</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carbon Equivalency -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Carbon Equivalency</span>
+        <span class="panel-badge">Relatable</span>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px">Your cleanup is equivalent to…</div>
+      <div class="equiv-grid">
+        <div class="equiv-card">
+          <div class="eq-icon">🌳</div>
+          <div class="eq-val">12</div>
+          <div class="eq-label">Trees Planted</div>
+        </div>
+        <div class="equiv-card">
+          <div class="eq-icon">🚗</div>
+          <div class="eq-val">47 km</div>
+          <div class="eq-label">Not Driven</div>
+        </div>
+        <div class="equiv-card">
+          <div class="eq-icon">💡</div>
+          <div class="eq-val">3 mo</div>
+          <div class="eq-label">LED Bulb Off</div>
+        </div>
+        <div class="equiv-card">
+          <div class="eq-icon">✈️</div>
+          <div class="eq-val">0.8 hr</div>
+          <div class="eq-label">Flight Avoided</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Energy Waterfall -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Energy Waterfall</span>
+        <span class="panel-badge">ROI</span>
+      </div>
+      <div class="wf-wrap" style="margin-top:6px">
+        <div class="wf-row">
+          <span class="wf-label">Audit Consumed</span>
+          <div class="wf-bar-track">
+            <div class="wf-bar neg" style="width:8%"><span>-0.00243 kWh</span></div>
+          </div>
+        </div>
+        <div class="wf-row" style="margin-top:8px">
+          <span class="wf-label">Storage Saved</span>
+          <div class="wf-bar-track">
+            <div class="wf-bar pos" style="width:100%"><span>+1.470 kWh</span></div>
+          </div>
+        </div>
+        <div style="height:1px;background:var(--border-subtle);margin:12px 0 12px 150px"></div>
+        <div class="wf-row">
+          <span class="wf-label">Net Gain</span>
+          <div class="wf-bar-track">
+            <div class="wf-bar total" style="width:98%"><span>+1.468 kWh ✅</span></div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding:10px;background:rgba(34,197,94,0.05);border:1px solid rgba(34,197,94,0.1);border-radius:8px;text-align:center">
+        <div style="font-size:10px;color:var(--text-muted)">Equivalent annual savings</div>
+        <div style="font-family:'DM Mono',monospace;font-size:14px;color:var(--accent-lime);margin-top:3px">$29.20 / year</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW -->
+  <div class="section-title fade-in">Storage & Trends</div>
+  <div class="section-grid fade-in">
+
+    <!-- Storage Donut -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Storage Breakdown by Type</span>
+        <span class="panel-badge">47.3 GB</span>
+      </div>
+      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+        <div class="chart-wrap" style="height:200px;width:200px;flex-shrink:0">
+          <canvas id="donut-chart" role="img" aria-label="Donut chart of storage by file type">Storage breakdown by file type.</canvas>
+        </div>
+        <div id="donut-legend" style="display:flex;flex-direction:column;gap:8px;font-size:11px"></div>
+      </div>
+    </div>
+
+    <!-- Timeline Chart -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">File Accumulation Timeline</span>
+        <span class="panel-badge">2 Years</span>
+      </div>
+      <div class="chart-wrap" style="height:200px">
+        <canvas id="timeline-chart" role="img" aria-label="Line chart of file creation over time">File accumulation timeline showing growth over 24 months.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLUSTER SCATTER + TREEMAP ROW -->
+  <div class="section-grid fade-in">
+    <!-- Scatter -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Semantic Cluster Map</span>
+        <span class="panel-badge">48 Clusters</span>
+      </div>
+      <div class="chart-wrap" style="height:220px">
+        <canvas id="scatter-chart" role="img" aria-label="Scatter plot of semantic file clusters">Scatter plot showing file clusters identified by DBSCAN algorithm.</canvas>
+      </div>
+    </div>
+
+    <!-- Bar chart duplicate types -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Duplicates by File Type</span>
+        <span class="panel-badge">1,847 Total</span>
+      </div>
+      <div class="chart-wrap" style="height:220px">
+        <canvas id="bar-chart" role="img" aria-label="Horizontal bar chart of duplicates by file type">Duplicate files breakdown by type.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECOMMENDATIONS -->
+  <div class="section-title fade-in">AI Recommendations</div>
+  <div class="full-panel fade-in">
+    <div class="panel-header" style="margin-bottom:16px">
+      <span class="panel-title">💡 GreenBit Recommendations</span>
+      <span style="font-size:11px;color:var(--text-muted)">3 action items · Potential: 5.43 GB</span>
+    </div>
+    <div class="rec-list">
+      <div class="rec-item high">
+        <div class="rec-dot"></div>
+        <div class="rec-content">
+          <div class="rec-title">HIGH PRIORITY — Cluster 12: 312 near-duplicate .txt files</div>
+          <div class="rec-desc">DBSCAN identified a dense cluster of redundant text files likely generated by log rotation or batch exports.</div>
+          <div class="rec-meta">
+            <span>💾 Save 4.2 GB</span>
+            <span>🌿 0.00034 kg CO₂/yr</span>
+            <span>🔴 Immediate action</span>
+          </div>
+        </div>
+      </div>
+      <div class="rec-item med">
+        <div class="rec-dot"></div>
+        <div class="rec-content">
+          <div class="rec-title">MEDIUM PRIORITY — 47 exact duplicate .py files in /src</div>
+          <div class="rec-desc">SHA-256 hashes confirmed identical source files likely copied across project branches without version control.</div>
+          <div class="rec-meta">
+            <span>💾 Save 890 MB</span>
+            <span>🌿 0.00008 kg CO₂/yr</span>
+            <span>🟡 This week</span>
+          </div>
+        </div>
+      </div>
+      <div class="rec-item low">
+        <div class="rec-dot"></div>
+        <div class="rec-content">
+          <div class="rec-title">LOW PRIORITY — 23 .log files older than 6 months</div>
+          <div class="rec-desc">Stale log files consuming storage. Consider archival or deletion policy for logs beyond retention window.</div>
+          <div class="rec-meta">
+            <span>💾 Save 340 MB</span>
+            <span>🌿 0.00003 kg CO₂/yr</span>
+            <span>🟢 When convenient</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BEFORE / AFTER + PROGRESS -->
+  <div class="section-grid wide fade-in">
+    <!-- Before / After -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Before vs After Cleanup</span>
+        <span class="panel-badge">Projected</span>
+      </div>
+      <div class="ba-grid">
+        <div class="ba-side before">
+          <div class="ba-label">Before</div>
+          <div class="ba-row"><span>Storage</span><span>47.3 GB</span></div>
+          <div class="ba-row"><span>Files</span><span>9,247</span></div>
+          <div class="ba-row"><span>CO₂/yr</span><span>0.0047 kg</span></div>
+          <div class="ba-row"><span>Cost/yr</span><span>$94.60</span></div>
+        </div>
+        <div class="ba-side after">
+          <div class="ba-label">After</div>
+          <div class="ba-row"><span>Storage</span><span>32.6 GB</span></div>
+          <div class="ba-row"><span>Files</span><span>5,266</span></div>
+          <div class="ba-row"><span>CO₂/yr</span><span>0.0027 kg</span></div>
+          <div class="ba-row"><span>Cost/yr</span><span>$65.20</span></div>
+        </div>
+      </div>
+      <div class="ba-saving">
+        <div class="save-item"><div class="save-num">14.7 GB</div><div class="save-label">Storage Saved</div></div>
+        <div class="save-item"><div class="save-num">43%</div><div class="save-label">CO₂ Reduced</div></div>
+        <div class="save-item"><div class="save-num">$29.40</div><div class="save-label">Annual Savings</div></div>
+        <div class="save-item"><div class="save-num">3,981</div><div class="save-label">Files Removed</div></div>
+      </div>
+    </div>
+
+    <!-- Progress Tracker -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Scan Progress</span>
+        <span class="panel-badge" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);color:var(--accent-amber)">Step 3/6</span>
+      </div>
+      <div class="progress-list">
+        <div class="progress-step">
+          <div class="step-dot step-done">✓</div>
+          <div class="step-text">
+            <div class="step-name">Directory Scanned</div>
+            <div class="step-detail">9,247 files found</div>
+          </div>
+        </div>
+        <div class="progress-step">
+          <div class="step-dot step-done">✓</div>
+          <div class="step-text">
+            <div class="step-name">SHA-256 Hashing</div>
+            <div class="step-detail">1,847 duplicates flagged</div>
+          </div>
+        </div>
+        <div class="progress-step">
+          <div class="step-dot step-running">⏳</div>
+          <div class="step-text">
+            <div class="step-name">Generating Embeddings</div>
+            <div class="step-detail">4,521 / 7,400 files</div>
+            <div class="step-bar-wrap">
+              <div class="step-bar"><div class="step-bar-fill"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="progress-step">
+          <div class="step-dot step-wait">4</div>
+          <div class="step-text">
+            <div class="step-name">DBSCAN Clustering</div>
+            <div class="step-detail">Waiting…</div>
+          </div>
+        </div>
+        <div class="progress-step">
+          <div class="step-dot step-wait">5</div>
+          <div class="step-text">
+            <div class="step-name">Carbon Audit</div>
+            <div class="step-detail">Waiting…</div>
+          </div>
+        </div>
+        <div class="progress-step">
+          <div class="step-dot step-wait">6</div>
+          <div class="step-text">
+            <div class="step-name">Generating Report</div>
+            <div class="step-detail">Waiting…</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;padding:10px;background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.15);border-radius:8px">
+        <div style="font-size:10px;color:var(--text-muted)">⚡ Estimated remaining</div>
+        <div style="font-family:'DM Mono',monospace;font-size:13px;color:var(--accent-amber);margin-top:2px">1m 45s · 0.00043 kg CO₂ so far</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPORT -->
+  <div class="section-title fade-in">Export & Share</div>
+  <div class="full-panel fade-in">
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:14px">📤 Download or share your audit report</div>
+    <div class="export-btns">
+      <button class="exp-btn exp-primary"><span class="eicon">⬇</span>Download CSV</button>
+      <button class="exp-btn exp-primary"><span class="eicon">⬇</span>Download JSON</button>
+      <button class="exp-btn exp-primary"><span class="eicon">⬇</span>PDF Report</button>
+      <button class="exp-btn"><span class="eicon">📧</span>Email Report</button>
+      <button class="exp-btn"><span class="eicon">📋</span>Copy Summary</button>
+      <button class="exp-btn" style="background:rgba(134,239,172,0.1);border-color:rgba(134,239,172,0.3);color:var(--accent-lime)">🌿 ESG Certificate</button>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+// ===== BACKGROUND PARTICLE CANVAS =====
+(function(){
+  const c=document.getElementById('bg-canvas');
+  const ctx=c.getContext('2d');
+  let W,H,particles=[];
+  function resize(){W=c.width=innerWidth;H=c.height=innerHeight}
+  resize();window.addEventListener('resize',resize);
+  for(let i=0;i<60;i++){
+    particles.push({
+      x:Math.random()*W,y:Math.random()*H,
+      r:Math.random()*2+0.5,
+      vx:(Math.random()-0.5)*0.3,
+      vy:-Math.random()*0.4-0.1,
+      opacity:Math.random()*0.5+0.1,
+      hue:Math.random()*30+120
+    });
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p=>{
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue},70%,60%,${p.opacity})`;
+      ctx.fill();
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.y<0){p.y=H;p.x=Math.random()*W}
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ===== COUNTER ANIMATION =====
+function animateCount(el,target,decimals,suffix){
+  let start=0,dur=1800;
+  const s=performance.now();
+  function step(now){
+    const p=Math.min((now-s)/dur,1);
+    const ease=1-Math.pow(1-p,3);
+    const val=start+(target-start)*ease;
+    el.textContent=(decimals?val.toFixed(decimals):Math.round(val).toLocaleString())+(suffix||'');
+    if(p<1)requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+document.querySelectorAll('[data-count]').forEach(el=>{
+  animateCount(el,+el.dataset.target,0);
+});
+document.querySelectorAll('[data-count-decimal]').forEach(el=>{
+  const d=+el.dataset.countDecimal;
+  animateCount(el,+el.dataset.target,d,' GB');
+});
+
+// ===== GAUGE ANIMATION =====
+(function(){
+  const fill=document.getElementById('gauge-fill');
+  const needle=document.getElementById('gauge-needle');
+  const numEl=document.getElementById('gauge-number');
+  const total=251,score=88;
+  const offset=total-(total*(score/100));
+  let start=null;
+  function anim(ts){
+    if(!start)start=ts;
+    const p=Math.min((ts-start)/2000,1);
+    const ease=1-Math.pow(1-p,3);
+    fill.setAttribute('stroke-dashoffset',total-(total*(score/100)*ease));
+    const angle=-80+(160*(score/100)*ease);
+    needle.setAttribute('transform',`rotate(${angle},100,100)`);
+    needle.setAttribute('opacity',p);
+    numEl.textContent=Math.round(score*ease);
+    if(p<1)requestAnimationFrame(anim);
+  }
+  requestAnimationFrame(anim);
+})();
+
+// ===== SIDEBAR SLIDER =====
+const slider=document.getElementById('sensitivity-slider');
+const sensVal=document.getElementById('sens-val');
+slider.addEventListener('input',()=>sensVal.textContent=slider.value);
+
+// ===== DONUT CHART =====
+(function(){
+  const labels=['PDF','DOCX','Images','Code','Video','Other'];
+  const data=[12.4,8.1,11.2,3.8,7.6,4.2];
+  const colors=['#22c55e','#60a5fa','#f59e0b','#a78bfa','#f87171','#34d399'];
+  const total=data.reduce((a,b)=>a+b,0);
+  // legend
+  const leg=document.getElementById('donut-legend');
+  labels.forEach((l,i)=>{
+    leg.innerHTML+=`<div style="display:flex;align-items:center;gap:6px">
+      <span style="width:10px;height:10px;border-radius:2px;background:${colors[i]};flex-shrink:0"></span>
+      <span style="color:var(--text-secondary)">${l}</span>
+      <span style="font-family:'DM Mono',monospace;color:var(--text-muted);margin-left:auto">${data[i]}GB</span>
+    </div>`;
+  });
+  new Chart(document.getElementById('donut-chart'),{
+    type:'doughnut',
+    data:{
+      labels,
+      datasets:[{
+        data,
+        backgroundColor:colors,
+        borderColor:'rgba(0,0,0,0.3)',
+        borderWidth:2,
+        hoverOffset:6
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      cutout:'68%',
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        label:(ctx)=>`${ctx.label}: ${ctx.raw} GB (${((ctx.raw/total)*100).toFixed(1)}%)`
+      }}}
+    }
+  });
+})();
+
+// ===== TIMELINE CHART =====
+(function(){
+  const months=['May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr'];
+  const data=[420,510,490,680,720,850,940,1100,1280,1450,1620,1847];
+  const waste=[80,90,85,130,140,190,220,280,350,410,480,550];
+  new Chart(document.getElementById('timeline-chart'),{
+    type:'line',
+    data:{
+      labels:months,
+      datasets:[
+        {
+          label:'Total Files (÷10)',
+          data:data.map(v=>Math.round(v/10)),
+          borderColor:'#22c55e',
+          backgroundColor:'rgba(34,197,94,0.08)',
+          fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:'#22c55e',
+          borderWidth:2
+        },
+        {
+          label:'Duplicates',
+          data:waste,
+          borderColor:'#f87171',
+          backgroundColor:'rgba(248,113,113,0.06)',
+          fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:'#f87171',
+          borderDash:[4,4],borderWidth:1.5
+        }
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(122,170,136,0.7)',font:{size:10}}},
+        y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(122,170,136,0.7)',font:{size:10}}}
+      },
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:'rgba(11,26,16,0.9)',borderColor:'rgba(34,197,94,0.2)',borderWidth:1}
+      }
+    }
+  });
+})();
+
+// ===== SCATTER CHART =====
+(function(){
+  const clusterColors=['#22c55e','#60a5fa','#f59e0b','#a78bfa','#f87171','#34d399','#fb923c','#38bdf8'];
+  const datasets=[];
+  // noise
+  const noise=[];
+  for(let i=0;i<80;i++)noise.push({x:Math.random()*10-5,y:Math.random()*10-5});
+  datasets.push({label:'Noise',data:noise,backgroundColor:'rgba(255,255,255,0.1)',pointRadius:2,pointHoverRadius:3});
+  // clusters
+  for(let c=0;c<8;c++){
+    const cx=(Math.random()*8-4),cy=(Math.random()*8-4);
+    const pts=[];
+    for(let i=0;i<Math.floor(Math.random()*40+20);i++){
+      pts.push({x:cx+(Math.random()-0.5)*1.2,y:cy+(Math.random()-0.5)*1.2});
+    }
+    datasets.push({label:`Cluster ${c+1}`,data:pts,backgroundColor:clusterColors[c]+'aa',pointRadius:3,pointHoverRadius:5});
+  }
+  new Chart(document.getElementById('scatter-chart'),{
+    type:'scatter',
+    data:{datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(122,170,136,0.5)',font:{size:9}}},
+        y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(122,170,136,0.5)',font:{size:9}}}
+      },
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:'rgba(11,26,16,0.9)',borderColor:'rgba(34,197,94,0.2)',borderWidth:1}
+      }
+    }
+  });
+})();
+
+// ===== BAR CHART =====
+(function(){
+  const types=['.txt','.py','.jpg','.pdf','.docx','.log','.csv','.mp4'];
+  const counts=[550,312,280,240,180,142,98,45];
+  const colors=counts.map((v,i)=>{
+    const g=255-Math.round((i/types.length)*180);
+    return `rgba(34,${g},94,0.7)`;
+  });
+  new Chart(document.getElementById('bar-chart'),{
+    type:'bar',
+    data:{
+      labels:types,
+      datasets:[{
+        label:'Duplicate Count',
+        data:counts,
+        backgroundColor:colors,
+        borderColor:colors.map(c=>c.replace('0.7','1')),
+        borderWidth:1,
+        borderRadius:4
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true,maintainAspectRatio:false,
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(122,170,136,0.7)',font:{size:10}}},
+        y:{grid:{display:false},ticks:{color:'rgba(122,170,136,0.7)',font:{size:10,family:'DM Mono'}}}
+      },
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:'rgba(11,26,16,0.9)',borderColor:'rgba(34,197,94,0.2)',borderWidth:1}
+      }
+    }
+  });
+})();
+
+// ===== API INTEGRATION =====
+(function(){
+  const runBtn=document.querySelector('.run-btn');
+  const exportBtns=document.querySelectorAll('.exp-btn');
+  const API_BASE='http://localhost:5000/api';
+  let currentFolderPath='.';
+  
+  // Global function to open folder browser - calls backend
+  window.openFolderBrowser=async function(){
+    try{
+      const res=await fetch(API_BASE+'/pick-folder');
+      const data=await res.json();
+
+      if(data.path){
+        currentFolderPath=data.path;
+        document.getElementById('folder-path-input').value=data.path;
+      }
+    }catch(e){
+      console.error('Folder picker error:',e);
+      alert('Error opening folder picker: '+e.message);
+    }
+  };
+
+  // Handle manual input changes
+  document.getElementById('folder-path-input').addEventListener('change',function(e){
+    const newPath=e.target.value.trim();
+    if(newPath){
+      currentFolderPath=newPath;
+    }
+  });
+  
+  // Utility: Format bytes to human readable
+  function formatBytes(bytes){
+    if(bytes===0)return'0 B';
+    const k=1024,sizes=['B','KB','MB','GB','TB'];
+    const i=Math.floor(Math.log(bytes)/Math.log(k));
+    return parseFloat((bytes/Math.pow(k,i)).toFixed(2))+' '+sizes[i];
+  }
+  
+  // Update KPI cards with real data from pipeline stats
+  function updateKPIValues(data){
+    const stats=data.stats||{};
+    
+    // Map of KPI labels to stat keys and formatting
+    const kpiMappings=[
+      { 
+        label:'Total Storage',
+        statKey:'total_storage_gb',
+        format:(v)=>v?v.toFixed(1):'0',
+        unit:'GB'
+      },
+      { 
+        label:'Total Files',
+        statKey:'total_files',
+        format:(v)=>v?Math.round(v).toLocaleString():'0',
+        unit:''
+      },
+      { 
+        label:'Wasted Storage',
+        statKey:'total_reclaimable_bytes',
+        format:(v)=>v?(v/(1024**3)).toFixed(1):'0',
+        unit:'GB'
+      },
+      { 
+        label:'Exact Duplicates',
+        statKey:'exact_duplicate_count',
+        format:(v)=>v?v.toLocaleString():'0',
+        unit:''
+      },
+      { 
+        label:'Semantic Clusters',
+        statKey:'clusters_found',
+        format:(v)=>v?v:'0',
+        unit:''
+      },
+      { 
+        label:'CO₂ Emitted',
+        statKey:'co2_emissions',
+        format:(v)=>v?v.toFixed(5):'0',
+        unit:'kg'
+      },
+      { 
+        label:'Net Energy Gain',
+        statKey:'net_environmental_gain_kwh',
+        format:(v)=>v?v.toFixed(3):'0',
+        unit:'kWh'
+      }
+    ];
+    
+    // Update each KPI card
+    kpiMappings.forEach(mapping=>{
+      const cards=document.querySelectorAll('.kpi-card');
+      cards.forEach(card=>{
+        const label=card.querySelector('.kpi-label');
+        if(label && label.textContent.trim().includes(mapping.label)){
+          const valueEl=card.querySelector('.kpi-value');
+          if(valueEl){
+            const val=stats[mapping.statKey]||0;
+            const formatted=mapping.format(val);
+            valueEl.textContent=formatted+(mapping.unit?' '+mapping.unit:'');
+          }
+        }
+      });
+    });
+  }
+  
+  // Update environmental metrics from stats
+  function updateEnvironmentalMetrics(data){
+    const stats=data.stats||{};
+    
+    // Calculate Energy ROI percentage for gauge
+    const energyRoi=Math.min(100,Math.max(0,(stats.energy_roi||0)*10));
+    
+    // Update gauge circle
+    const fill=document.getElementById('gauge-fill');
+    const needle=document.getElementById('gauge-needle');
+    const numEl=document.getElementById('gauge-number');
+    
+    if(fill && numEl){
+      const total=251;
+      const offset=total-(total*(energyRoi/100));
+      fill.setAttribute('stroke-dashoffset',offset);
+      numEl.textContent=Math.round(energyRoi);
+    }
+    
+    // Calculate carbon equivalencies (based on kWh saved)
+    const kwhSaved=stats.annual_energy_saved_kwh||0;
+    
+    // 1 kWh ≈ 0.411 kg CO₂
+    const coOffset=kwhSaved*0.411;
+    
+    // Equivalency calculations
+    const equivData={
+      trees: Math.round(coOffset/20),  // 1 tree absorbs ~20kg CO₂/year
+      kmNotDriven: Math.round(kwhSaved/0.2),  // Average car uses 0.2 kWh/km
+      ledHours: Math.round(kwhSaved/0.01),  // LED uses ~0.01 kWh/hour
+      flightHours: (kwhSaved/200).toFixed(2)  // Flight uses ~200 kWh/hour
+    };
+    
+    // Update equivalency cards
+    const equivGrid=document.querySelector('.equiv-grid');
+    if(equivGrid){
+      equivGrid.innerHTML=`
+        <div class="equiv-card">
+          <div class="eq-icon">🌳</div>
+          <div class="eq-val">${equivData.trees}</div>
+          <div class="eq-label">Trees Planted</div>
+        </div>
+        <div class="equiv-card">
+          <div class="eq-icon">🚗</div>
+          <div class="eq-val">${equivData.kmNotDriven.toLocaleString()}</div>
+          <div class="eq-label">Not Driven</div>
+        </div>
+        <div class="equiv-card">
+          <div class="eq-icon">💡</div>
+          <div class="eq-val">${Math.round(equivData.ledHours).toLocaleString()}</div>
+          <div class="eq-label">LED Hours Off</div>
+        </div>
+        <div class="equiv-card">
+          <div class="eq-icon">✈️</div>
+          <div class="eq-val">${equivData.flightHours}</div>
+          <div class="eq-label">Flight Avoided</div>
+        </div>
+      `;
+    }
+    
+    // Update ROI badge
+    const roiBadge=document.querySelector('.roi-badge');
+    if(roiBadge){
+      roiBadge.innerHTML=`
+        <div class="roi-num">${(stats.energy_roi||0).toFixed(1)}:1</div>
+        <div class="roi-label">Audit pays for itself in energy</div>
+      `;
+    }
+  }
+  
+  // Update before/after metrics and recommendations
+  function updateBeforeAfter(data){
+    const stats=data.stats||{};
+    
+    // Calculate before/after values
+    const totalStorage=stats.total_storage_gb||0;
+    const reclaimableStorage=stats.reclaimable_gb||0;
+    const afterStorage=totalStorage-reclaimableStorage;
+    
+    const totalFiles=stats.total_files||0;
+    const exactDupes=stats.exact_duplicate_count||0;
+    const semanticWaste=stats.semantic_waste_count||0;
+    const totalWaste=exactDupes+semanticWaste;
+    const afterFiles=totalFiles-totalWaste;
+    
+    // Annual CO₂ calculations
+    const co2EmittedAudit=stats.co2_emissions||0;
+    const co2OffsetAnnual=stats.co2_offset_kg||0;
+    const before_co2_annual=totalStorage*365*0.000002*0.475*1000;  // grams
+    const after_co2_annual=afterStorage*365*0.000002*0.475*1000;
+    
+    // Update before/after cards
+    const baGrid=document.querySelector('.ba-grid');
+    if(baGrid){
+      baGrid.innerHTML=`
+        <div class="ba-side before">
+          <div class="ba-label">📈 Before Cleanup</div>
+          <div class="ba-row"><span>Storage</span><span>${totalStorage.toFixed(1)} GB</span></div>
+          <div class="ba-row"><span>Files</span><span>${totalFiles.toLocaleString()}</span></div>
+          <div class="ba-row"><span>Annual CO₂</span><span>${Math.round(before_co2_annual)} g</span></div>
+        </div>
+        <div class="ba-side after">
+          <div class="ba-label">✨ After Cleanup</div>
+          <div class="ba-row"><span>Storage</span><span>${afterStorage.toFixed(1)} GB</span></div>
+          <div class="ba-row"><span>Files</span><span>${afterFiles.toLocaleString()}</span></div>
+          <div class="ba-row"><span>Annual CO₂</span><span>${Math.round(after_co2_annual)} g</span></div>
+        </div>
+      `;
+    }
+    
+    // Update savings panel
+    const baSaving=document.querySelector('.ba-saving');
+    if(baSaving){
+      const savingsPct=totalStorage>0?Math.round((reclaimableStorage/totalStorage)*100):0;
+      baSaving.innerHTML=`
+        <div class="save-item"><div class="save-num">${reclaimableStorage.toFixed(1)}</div><div class="save-label">GB Saved</div></div>
+        <div class="save-item"><div class="save-num">${savingsPct}</div><div class="save-label">% Reduction</div></div>
+        <div class="save-item"><div class="save-num">${totalWaste.toLocaleString()}</div><div class="save-label">Files Removable</div></div>
+      `;
+    }
+    
+    // Generate recommendations based on analysis
+    const recommendations=generateRecommendations(stats);
+    updateRecommendations(recommendations);
+  }
+  
+  // Generate recommendations based on analysis results
+  function generateRecommendations(stats){
+    const recs=[];
+    
+    // High priority: Large duplicate files
+    if(stats.exact_duplicate_count>0){
+      recs.push({
+        priority:'high',
+        title:'Remove Exact Duplicates',
+        description:`Found ${stats.exact_duplicate_count} exact duplicate files totaling ${stats.exact_duplicate_storage_gb} GB. Remove all but one copy.`,
+        meta:[`${stats.exact_duplicate_storage_gb} GB`, `${stats.exact_duplicate_count} files`]
+      });
+    }
+    
+    // Medium priority: Semantic clusters
+    if(stats.semantic_waste_count>0){
+      recs.push({
+        priority:'med',
+        title:'Review Semantic Duplicates',
+        description:`Found ${stats.clusters_found} clusters of similar/redundant content (${stats.semantic_waste_count} files). Review and archive outdated versions.`,
+        meta:[`${stats.semantic_waste_storage_gb} GB`, `${stats.clusters_found} clusters`]
+      });
+    }
+    
+    // Low priority: Optimization tips
+    if(stats.total_files>0){
+      recs.push({
+        priority:'low',
+        title:'Archive Old Files',
+        description:'Move files older than 1 year to cold storage to reduce active data center energy consumption.',
+        meta:['Annual savings potential: '+((stats.total_storage_gb||0)*0.000002).toFixed(4)+' kWh']
+      });
+    }
+    
+    // Always include energy ROI tip
+    if(stats.energy_roi>1){
+      recs.push({
+        priority:'low',
+        title:'Greenbit Audit Justified',
+        description:`This audit has a positive energy ROI of ${stats.energy_roi.toFixed(1)}:1. The annual energy saved from cleanup far exceeds the audit cost.`,
+        meta:['Net Gain: '+stats.net_environmental_gain_kwh.toFixed(3)+' kWh/year']
+      });
+    }
+    
+    return recs;
+  }
+  
+  // Update recommendations display
+  function updateRecommendations(recommendations){
+    const recList=document.querySelector('.rec-list');
+    if(recList){
+      if(recommendations.length===0){
+        recList.innerHTML='<div style="color:var(--text-muted);text-align:center;padding:20px">No recommendations available yet. Run a scan to analyze your storage.</div>';
+      }else{
+        recList.innerHTML=recommendations.map(rec=>`
+          <div class="rec-item ${rec.priority}">
+            <div class="rec-dot"></div>
+            <div class="rec-content">
+              <div class="rec-title">${rec.title}</div>
+              <div class="rec-desc">${rec.description}</div>
+              ${rec.meta.length>0?`<div class="rec-meta">${rec.meta.map(m=>`<span>${m}</span>`).join('')}</div>`:''}
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+  }
+  
+  // Update sidebar stats with scan results
+  function updateSidebarStats(data){
+    const stats=data.stats||{};
+    
+    // Format time
+    const formatSeconds=(seconds)=>{
+      const mins=Math.floor(seconds/60);
+      const secs=Math.round(seconds%60);
+      return mins>0?`${mins}m ${secs}s`:`${secs}s`;
+    };
+    
+    const lastScan=new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+    const durationText=formatSeconds(stats.pipeline_time_seconds||0);
+    const netGainText=(stats.net_environmental_gain_kwh||0).toFixed(3)+' kWh';
+    
+    const statRows=document.querySelectorAll('.stat-row');
+    const statValues=[
+      lastScan,
+      (stats.total_files||0).toLocaleString(),
+      durationText,
+      netGainText
+    ];
+    
+    statRows.forEach((row,idx)=>{
+      if(idx<statValues.length){
+        const span=row.querySelector('span:last-child');
+        if(span)span.textContent=statValues[idx];
+      }
+    });
+  }
+  
+  // Load and update dashboard
+  async function loadScanResults(){
+    try{
+      const res=await fetch(API_BASE+'/results');
+      if(res.ok){
+        const data=await res.json();
+        console.log('Loaded scan results:', data);
+        
+        updateKPIValues(data);
+        updateEnvironmentalMetrics(data);
+        updateBeforeAfter(data);
+        updateSidebarStats(data);
+      }
+    }catch(e){
+      console.log('No scan results yet:', e.message);
+    }
+  }
+  
+  // Run scan button handler
+  runBtn.addEventListener('click',async()=>{
+    const targetPath=currentFolderPath||'.';
+    console.log('[BUTTON] Run Full Scan clicked, targetPath=', targetPath);
+
+    runBtn.disabled=true;
+    runBtn.textContent='⏳ Running Scan...';
+
+    // Show status updates in a toast/notification area
+    let statusEl = document.getElementById('scan-status');
+    if (!statusEl) {
+      statusEl = document.createElement('div');
+      statusEl.id='scan-status';
+      statusEl.style.cssText='position:fixed;top:20px;right:20px;background:rgba(34,197,94,0.2);border:1px solid rgba(34,197,94,0.5);border-radius:10px;padding:16px;font-size:12px;color:var(--text-secondary);z-index:9999;max-width:300px;word-wrap:break-word';
+      document.body.appendChild(statusEl);
+    }
+    statusEl.textContent='📊 Scan initialized...';
+    console.log('[BUTTON] Button state changed to disabled');
+
+    try{
+      console.log('[FETCH] Calling POST /api/run-pipeline with folder:', targetPath);
+      const res=await fetch(API_BASE+'/run-pipeline',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({folder:targetPath})
+      });
+
+      console.log('[FETCH] Response received, status:', res.status);
+
+      if(res.ok){
+        console.log('[FETCH] Success! Scan started for:', targetPath);
+        statusEl.textContent='🔄 Scan running... (polling status)';
+
+        // Poll for completion every 2 seconds
+        const pollInterval=setInterval(async()=>{
+          try{
+            const statusRes=await fetch(API_BASE+'/status');
+            const status=await statusRes.json();
+            console.log('[POLL] Status:', status.status, '| Running:', status.running, '| Progress:', status.progress);
+
+            // Update status display
+            if (status.status === 'running') {
+              statusEl.textContent=`⚙️ Processing... (${status.progress || 0}%)`;
+            } else if (status.status === 'starting') {
+              statusEl.textContent='🚀 Pipeline starting...';
+            }
+
+            if(status.status==='complete'){
+              console.log('[POLL] Scan complete!');
+              clearInterval(pollInterval);
+              runBtn.disabled=false;
+              runBtn.textContent='▶ Run Full Scan';
+              statusEl.textContent='✅ Scan completed! Loading results...';
+              await loadScanResults();
+              statusEl.textContent='✅ Results loaded!';
+              setTimeout(()=>statusEl.remove(), 3000);
+              alert('✅ Scan completed successfully!');
+            }else if(status.status==='error'){
+              console.log('[POLL] Scan error:', status.error);
+              clearInterval(pollInterval);
+              runBtn.disabled=false;
+              runBtn.textContent='▶ Run Full Scan';
+              statusEl.textContent='❌ Error: '+status.error;
+              alert('❌ Scan error: '+status.error);
+            }
+          }catch(e){
+            console.log('[POLL] Poll error:', e.message);
+          }
+        },2000);
+      }else{
+        const err=await res.json();
+        console.error('[FETCH] Request failed, error:', err);
+        runBtn.disabled=false;
+        runBtn.textContent='▶ Run Full Scan';
+        statusEl.textContent='❌ Error: '+err.error;
+        alert('Error: '+err.error);
+      }
+    }catch(e){
+      console.error('[FETCH] Request exception:', e);
+      runBtn.disabled=false;
+      runBtn.textContent='▶ Run Full Scan';
+      statusEl.textContent='❌ Failed to start scan: '+e.message;
+      alert('Failed to start scan: '+e.message);
+    }
+  });
+  
+  // Export handlers
+  exportBtns.forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const text=btn.textContent.toLowerCase();
+      if(text.includes('csv')){
+        window.location.href=API_BASE+'/download/csv';
+      }else if(text.includes('json')){
+        window.location.href=API_BASE+'/download/json';
+      }else if(text.includes('copy')){
+        const summary='GreenBit Scan Report\nDate: '+new Date().toLocaleString();
+        navigator.clipboard.writeText(summary).then(()=>{
+          alert('Summary copied to clipboard!');
+        });
+      }
+    });
+  });
+  
+  // Load on page load
+  window.addEventListener('load',loadScanResults);
+})();
+</script>
+</body>
+</html>

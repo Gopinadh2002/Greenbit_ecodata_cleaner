@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>GreenBit | Eco Data Cleaner</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#e4e2e1",
+                        "on-secondary-container": "#d2d0cf",
+                        "on-tertiary-fixed": "#344c00",
+                        "tertiary-fixed": "#c0ff40",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "on-secondary-fixed": "#3f3f3f",
+                        "primary-fixed": "#5ff6c4",
+                        "primary-container": "#02c294",
+                        "on-error-container": "#ffa8a3",
+                        "error-container": "#9f0519",
+                        "secondary-dim": "#d6d4d3",
+                        "secondary-container": "#474747",
+                        "surface-container-highest": "#262626",
+                        "surface-container": "#191919",
+                        "on-tertiary-container": "#435f00",
+                        "surface-container-low": "#131313",
+                        "on-primary-container": "#003325",
+                        "surface-dim": "#0e0e0e",
+                        "inverse-surface": "#f9f9f9",
+                        "secondary-fixed": "#e4e2e1",
+                        "error-dim": "#d7383b",
+                        "tertiary-dim": "#b3f031",
+                        "primary-dim": "#4de7b6",
+                        "outline": "#757575",
+                        "on-tertiary": "#4a6800",
+                        "inverse-on-surface": "#555555",
+                        "on-primary": "#005a43",
+                        "on-background": "#ffffff",
+                        "on-tertiary-fixed-variant": "#4b6a00",
+                        "on-surface": "#ffffff",
+                        "tertiary-fixed-dim": "#b3f031",
+                        "tertiary": "#f1ffd1",
+                        "primary-fixed-dim": "#4de7b6",
+                        "inverse-primary": "#006c51",
+                        "on-secondary": "#525251",
+                        "surface-container-lowest": "#000000",
+                        "on-surface-variant": "#ababab",
+                        "surface-variant": "#262626",
+                        "surface": "#0e0e0e",
+                        "on-error": "#490006",
+                        "surface-tint": "#5ff6c4",
+                        "primary": "#5ff6c4",
+                        "on-primary-fixed-variant": "#00644b",
+                        "surface-container-high": "#1f1f1f",
+                        "error": "#ff716c",
+                        "background": "#0e0e0e",
+                        "outline-variant": "#484848",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "on-primary-fixed": "#004532",
+                        "surface-bright": "#2c2c2c",
+                        "tertiary-container": "#c0ff40"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Space Grotesk"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0e0e0e;
+            /* Fallback color */
+            background-image: url('./bg15.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            /* Makes the background stay still when you scroll */
+            /* Optional: Blends the image with the dark background color */
+            font-family: 'Manrope', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .font-headline {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .selection-custom::selection {
+            background-color: #03ED38;
+            color: #000000;
+        }
+
+        .nexus-glow {
+            background: radial-gradient(circle at center, rgba(0, 141, 69, 0.4) 0%, rgba(3, 237, 56, 0.1) 40%, transparent 70%);
+        }
+
+        .glass-nav {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Custom Animations */
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        @keyframes float-delayed {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        @keyframes fade-up {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes progress-fill {
+            from {
+                width: 0%;
+            }
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .animate-float-delayed {
+            animation: float-delayed 8s ease-in-out infinite;
+            animation-delay: -3s;
+        }
+
+        .fade-up {
+            opacity: 0;
+            animation: fade-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .delay-100 {
+            animation-delay: 100ms;
+        }
+
+        .delay-200 {
+            animation-delay: 200ms;
+        }
+
+        .delay-300 {
+            animation-delay: 300ms;
+        }
+
+        .delay-400 {
+            animation-delay: 400ms;
+        }
+
+        .delay-500 {
+            animation-delay: 500ms;
+        }
+
+        .bento-card {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .bento-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px -10px rgba(95, 246, 196, 0.15);
+        }
+
+        .progress-animate {
+            animation: progress-fill 1.5s ease-out forwards;
+            animation-delay: 0.5s;
+        }
+    </style>
+</head>
+
+<body class="selection-custom">
+    <!-- TopNavBar -->
+    <nav
+        class="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-7xl z-50 glass-nav px-8 h-20 rounded-[50px] flex justify-between items-center shadow-[0_0_40px_rgba(95,246,196,0.05)]">
+        <div class="flex items-center gap-2">
+            <img alt="GreenBit Logo" class="h-10 w-auto object-contain"
+                data-alt="minimalist geometric logo for a technology company using teal and green tones on a transparent background"
+                src="./logo1.png" />
+            <span class="text-xl font-bold tracking-tighter text-[#5ff6c4] font-headline">GreenBit</span>
+        </div>
+        <div id="nav-menu" class="hidden md:flex items-center gap-4 absolute left-1/2 -translate-x-1/2">
+            <div id="nav-bubble"
+                class="absolute z-[-1] bg-white/4 backdrop-blur-md shadow-[0_0_15px_rgba(2,194,148,0.2)] border border-[#ffffff]/40 rounded-[70px] transition-all duration-300 ease-out pointer-events-none"
+                style="opacity: 0;"></div>
+            <a class="px-7 py-3.5 rounded-full text-[#ffffff] font-bold font-label text-base tracking-wider uppercase transition-colors duration-300 hover:text-[#5ff6c4]"
+                href="/">HOME</a>
+            <a class="px-7 py-3.5 rounded-full text-[#ffffff] font-bold font-label text-base tracking-wider uppercase transition-colors duration-300 hover:text-[#5ff6c4]"
+                href="/dashboard" target="_blank">Dashboard</a>
+            <a class="px-7 py-3.5 rounded-full text-[#ffffff] font-bold font-label text-base tracking-wider uppercase transition-colors duration-300 hover:text-[#5ff6c4]"
+                href="/about">ABOUT US</a>
+            <a class="px-7 py-3.5 rounded-full text-[#ffffff] font-bold font-label text-base tracking-wider uppercase transition-colors duration-300 hover:text-[#5ff6c4]"
+                href="/regulations">REGULATIONS</a>
+        </div>
+    </nav>
+    <!-- Hero Section -->
+    <main
+        class="relative min-h-screen flex flex-col items-center justify-center text-center px-4 pt-20 overflow-hidden">
+        <!-- Background Nexus Glow -->
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(3,237,56,0.1)_0%,transparent_50%)] pointer-events-none">
+        </div>
+        <!-- Floating Nodes -->
+        <!-- Node 1: Top Right -->
+        <div
+            class="absolute top-[25%] right-[10%] md:right-[15%] p-4 glass-nav border-[#02C294]/30 rounded-xl hidden sm:block animate-float">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-[#03ED38]" data-icon="content_copy">content_copy</span>
+                <div class="text-left">
+                    <p class="text-[10px] uppercase tracking-widest text-gray-300 font-label">Duplicate Found</p>
+                    <p class="text-[#03ED38] font-headline font-bold text-sm">Hash: 0x9A4F...</p>
+                </div>
+            </div>
+        </div>
+        <!-- Node 2: Bottom Left -->
+        <div
+            class="absolute bottom-[20%] left-[5%] md:left-[10%] p-4 glass-nav border-[#CAF402]/30 rounded-xl hidden sm:block animate-float-delayed">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-[#CAF402]" data-icon="eco">eco</span>
+                <div class="text-left">
+                    <p class="text-[10px] uppercase tracking-widest text-gray-300 font-label">CO2 Saved</p>
+                    <p class="text-[#CAF402] font-headline font-bold text-lg">14.2 kg</p>
+                </div>
+            </div>
+        </div>
+        <!-- Node 3: Center Left (Network completion) -->
+        <div class="absolute top-[40%] left-[15%] p-3 glass-nav border-white/10 rounded-xl opacity-60 hidden lg:block animate-float delay-100"
+            style="animation-duration: 7s;">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-[#03ED38]"></div>
+                <p class="text-[9px] font-label text-white/50 tracking-tighter">NODE_ACTIVE: US-EAST-1</p>
+            </div>
+        </div>
+        <!-- Hero Content -->
+        <div class="relative z-10 max-w-4xl">
+            <div
+                class="fade-up inline-flex items-center px-4 py-1.5 rounded-full border border-[#CAF402]/20 bg-[#CAF402]/5 text-white text-xs font-headline tracking-widest uppercase mb-8">
+                AI-Powered Data Cleaning
+            </div>
+            <h1
+                class="fade-up delay-100 text-6xl md:text-8xl font-bold font-headline tracking-tighter mb-6 text-white leading-[0.9]">
+                Zero Data Waste.<br />Zero Emissions.
+            </h1>
+            <p
+                class="fade-up delay-200 text-lg md:text-xl text-gray-300 font-body max-w-2xl mx-auto mb-12 tracking-tight">
+                Our stewardship laboratory purges redundant datasets with surgical precision, reducing your digital
+                footprint and cooling the planet's servers.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+            </div>
+        </div>
+    </main>
+    <!-- Content Grid (Bento Layout) -->
+    <section class="max-w-7xl mx-auto px-8 py-24 relative">
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle_at_center,rgba(2,194,148,0.08)_0%,transparent_60%)] pointer-events-none -z-10">
+        </div>
+
+        <div class="bento-grid">
+            <div
+                class="fade-up delay-300 bento-card col-span-12 lg:col-span-8 glass-nav rounded-[25px] p-8 relative overflow-hidden group border border-transparent hover:border-[#02c294]/50">
+                <div class="absolute top-0 right-0 p-4">
+                    <span class="text-[#f1ffd1] text-xs font-label">REF_092</span>
+                </div>
+                <div class="relative z-10 h-full flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-3xl font-headline font-bold text-white mb-4">Neural Redundancy Filtering</h3>
+                        <p class="text-on-surface-variant font-body max-w-md">Our proprietary algorithm identifies
+                            carbon-heavy data clusters and optimizes storage cycles to minimize thermal output.</p>
+                    </div>
+                    <div class="mt-12 flex gap-4 overflow-hidden">
+                        <div class="h-1 bg-[#02c294] w-full relative">
+                            <div class="absolute inset-0 bg-[#03ED38] w-2/3 shadow-[0_0_10px_#03ED38] progress-animate">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute bottom-[-20%] right-[-10%] opacity-10 group-hover:opacity-20 transition-opacity">
+                    <span class="material-symbols-outlined text-[200px]" data-icon="layers">layers</span>
+                </div>
+            </div>
+            <div
+                class="fade-up delay-400 bento-card col-span-12 md:col-span-6 lg:col-span-4 glass-nav rounded-[25px] p-8 flex flex-col justify-between border border-transparent hover:border-[#02c294]/50">
+                <span class="material-symbols-outlined text-[#AFEC2C] text-4xl mb-6" data-icon="speed">speed</span>
+                <div>
+                    <h4 class="text-xl font-headline font-bold text-white mb-2">High-Velocity Purge</h4>
+                    <p class="text-on-surface-variant text-sm font-body">Process petabytes of logs in seconds without
+                        spiking CPU utilization or energy draw.</p>
+                </div>
+            </div>
+            <div
+                class="fade-up delay-400 bento-card col-span-12 md:col-span-6 lg:col-span-4 glass-nav rounded-[25px] p-8 flex flex-col items-center justify-center text-center border border-transparent hover:border-[#02c294]/50">
+                <p class="text-5xl font-headline font-bold text-[#03ED38] mb-2 tracking-tighter">99.8%</p>
+                <p class="text-xs font-label uppercase text-gray-300 tracking-widest">Efficiency Rating</p>
+                <div class="mt-6 w-full h-[1px] bg-outline-variant/20"></div>
+                <p class="mt-4 text-xs font-body text-on-surface-variant italic">Verified by GreenBit Labs</p>
+            </div>
+            <div
+                class="fade-up delay-500 bento-card col-span-12 lg:col-span-8 glass-nav rounded-[25px] p-8 overflow-hidden relative border border-transparent hover:border-[#02c294]/50">
+                <div class="flex flex-col md:flex-row gap-8 items-center">
+                    <div class="w-full md:w-1/2">
+                        <h3 class="text-2xl font-headline font-bold text-white mb-4">Stewardship Ledger</h3>
+                        <p class="text-on-surface-variant text-sm mb-6">Every byte cleaned is logged on our public
+                            carbon-offset ledger, providing transparent environmental ROI for your enterprise.</p>
+                    </div>
+                </div>
+            </div>
+    </section>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const navMenu = document.getElementById("nav-menu");
+            const bubble = document.getElementById("nav-bubble");
+            const links = navMenu.querySelectorAll("a");
+
+            const currentPath = window.location.pathname.split("/").pop() || "index.html";
+            let activeLink = null;
+
+            links.forEach(link => {
+                if (link.getAttribute("href") === currentPath || (currentPath === "" && link.getAttribute("href") === "index.html")) {
+                    activeLink = link;
+                    link.classList.remove("text-[#ffffff]");
+                    link.classList.add("text-[#5ff6c4]");
+                }
+            });
+
+            function moveBubble(target) {
+                if (!target) return;
+                const targetRect = target.getBoundingClientRect();
+                const containerRect = navMenu.getBoundingClientRect();
+
+                const extraHeight = 16;
+                bubble.style.width = `${targetRect.width}px`;
+                bubble.style.height = `${targetRect.height + extraHeight}px`;
+                bubble.style.left = `${targetRect.left - containerRect.left}px`;
+                bubble.style.top = `${targetRect.top - containerRect.top - (extraHeight / 2)}px`;
+                bubble.style.opacity = "1";
+            }
+
+            setTimeout(() => { if (activeLink) moveBubble(activeLink); }, 100);
+            window.addEventListener("resize", () => { if (activeLink) moveBubble(activeLink); });
+
+            links.forEach(link => {
+                link.addEventListener("mouseenter", () => moveBubble(link));
+                link.addEventListener("mouseleave", () => {
+                    if (activeLink) moveBubble(activeLink);
+                    else bubble.style.opacity = "0";
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

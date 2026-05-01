@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>GreenBit | About Us</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5ff6c4",
+                        "background": "#0e0e0e",
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Space Grotesk"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0e0e0e;
+            background-image: url('./bg26.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: 'Manrope', sans-serif;
+            overflow-x: hidden;
+            color: #ffffff;
+        }
+
+        .font-headline {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .selection-custom::selection {
+            background-color: #03ED38;
+            color: #000000;
+        }
+
+        .glass-nav {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .glass-panel {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(2, 194, 148, 0.2);
+        }
+
+        /* Custom Animations */
+        @keyframes fade-up {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-up {
+            opacity: 0;
+            animation: fade-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .delay-100 {
+            animation-delay: 100ms;
+        }
+
+        .delay-200 {
+            animation-delay: 200ms;
+        }
+
+        .delay-300 {
+            animation-delay: 300ms;
+        }
+
+        .delay-400 {
+            animation-delay: 400ms;
+        }
+
+        .delay-500 {
+            animation-delay: 500ms;
+        }
+
+        .card-lift {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .card-lift:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px -10px rgba(95, 246, 196, 0.2);
+        }
+    </style>
+</head>
+
+<body class="selection-custom">
+    <!-- TopNavBar -->
+    <nav
+        class="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-7xl z-50 glass-nav px-8 h-20 rounded-[50px] flex justify-between items-center shadow-[0_0_40px_rgba(95,246,196,0.05)]">
+        <div class="flex items-center gap-2">
+            <img alt="GreenBit Logo" class="h-10 w-auto object-contain" src="./logo1.png" />
+            <span class="text-xl font-bold tracking-tighter text-[#5ff6c4] font-headline">GreenBit</span>
+        </div>
+        <div id="nav-menu" class="hidden md:flex items-center gap-4 absolute left-1/2 -translate-x-1/2">
+            <div id="nav-bubble"
+                class="absolute z-[-1] bg-white/4 backdrop-blur-md shadow-[0_0_15px_rgba(2,194,148,0.2)] border border-[#ffffff]/40 rounded-[70px] transition-all duration-300 ease-out pointer-events-none"
+                style="opacity: 0;"></div>
+            <a class="px-7 py-3.5 rounded-full text-[#ffffff] font-bold font-label text-base tracking-wider uppercase transition-colors duration-300 hover:text-[#5ff6c4]"
+                href="/">HOME</a>
+            <a class="px-7 py-3.5 rounded-full text-[#ffffff] font-bold font-label text-base tracking-wider uppercase transition-colors duration-300 hover:text-[#5ff6c4]"
+                href="/dashboard">Dashboard</a>
+            <a class="px-7 py-3.5 rounded-full text-[#ffffff] font-bold font-label text-base tracking-wider uppercase transition-colors duration-300 hover:text-[#5ff6c4]"
+                href="/about">ABOUT US</a>
+            <a class="px-7 py-3.5 rounded-full text-[#ffffff] font-bold font-label text-base tracking-wider uppercase transition-colors duration-300 hover:text-[#5ff6c4]"
+                href="/regulations">REGULATIONS</a>
+        </div>
+    </nav>
+
+    <main class="relative min-h-screen flex flex-col items-center justify-center px-4 pt-32 pb-20">
+        <!-- Background Glow -->
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle_at_center,rgba(2,194,148,0.08)_0%,transparent_60%)] pointer-events-none -z-10">
+        </div>
+
+        <!-- Big Bento Box -->
+        <div
+            class="fade-up card-lift w-full max-w-5xl glass-panel rounded-[30px] p-10 md:p-16 relative overflow-hidden group hover:border-[#02c294]/40 transition-colors shadow-2xl border border-[#02c294]/20">
+            <!-- Accent glow inside the bento -->
+            <div class="absolute top-0 right-0 w-64 h-64 bg-[#03ED38]/10 blur-3xl rounded-full pointer-events-none">
+            </div>
+            <div class="absolute bottom-0 left-0 w-64 h-64 bg-[#02c294]/10 blur-3xl rounded-full pointer-events-none">
+            </div>
+
+            <div class="text-center mb-12 relative z-10">
+                <div
+                    class="inline-flex items-center justify-center mb-6 p-4 rounded-2xl bg-white/5 border border-white/10">
+                    <img src="./logo1.png" alt="GreenBit Logo" class="h-12 w-auto object-contain" />
+                </div>
+
+                <h1 class="text-4xl md:text-5xl font-headline font-bold text-white mb-4 tracking-tighter">About GreenBit
+                    Project</h1>
+                <p class="text-gray-300 text-lg max-w-2xl mx-auto">Pioneering sustainable data management by eliminating
+                    digital waste and drastically reducing server emissions.</p>
+            </div>
+            <div class="max-w-3xl mx-auto text-center relative z-10">
+                <div class="flex flex-col justify-center items-center">
+                    <h3
+                        class="text-2xl font-headline font-bold text-[#5ff6c4] mb-4 flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-sm">info</span> The Mission
+                    </h3>
+                    <p class="text-gray-300 font-body leading-relaxed mb-6">
+                        The GreenBit project focuses on solving the problem of “dark data,” which consists of unused,
+                        redundant, or obsolete digital files.
+                        This data consumes storage space and contributes to high energy usage in data centers.
+                        Traditional deduplication methods rely on hashing techniques that only detect exact duplicates.
+                        They fail to identify semantically similar or near-duplicate files.
+                        GreenBit overcomes this limitation using AI-based semantic analysis.
+                        It uses lightweight Transformer models to convert files into meaningful embeddings.
+                        These embeddings help the system understand the actual content of documents.
+                    </p>
+                    <p class="text-gray-300 font-body leading-relaxed">
+                        The project applies DBSCAN clustering to group similar files automatically.
+                        This enables efficient detection of redundant and near-duplicate data.
+                        GreenBit also follows the concept of “Green AI” to ensure energy-efficient processing.
+                        It integrates CodeCarbon to track energy usage and carbon emissions in real time.
+                        The system calculates a Net Environmental Gain to ensure sustainability benefits.
+                        It includes modules like file scanning, semantic analysis, clustering, and reporting.
+                        An interactive dashboard provides clear insights into storage savings and CO₂ reduction.
+                        Overall, GreenBit is a scalable and eco-friendly solution for intelligent data management.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-12 pt-8 border-t border-white/10 text-center relative z-10">
+                <p class="text-xs font-label text-gray-300 uppercase tracking-widest">Open Source Initiative • EST. 2026
+                </p>
+            </div>
+        </div>
+
+        <!-- Contributors Grid -->
+        <div class="w-full max-w-6xl mt-16 relative z-10">
+            <div class="fade-up delay-200 text-center mb-12">
+                <h2 class="text-4xl md:text-5xl font-headline font-bold text-white tracking-tighter">Meet The Team</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Person 1 -->
+                <div
+                    class="fade-up delay-200 card-lift glass-panel p-8 rounded-[30px] flex flex-col items-center text-center hover:border-[#02c294]/50 transition-colors group shadow-lg shadow-black/20 border border-[#02c294]/20">
+                    <div
+                        class="w-32 h-32 mb-6 rounded-[50%] p-1 border-2 border-[#02c294]/40 group-hover:border-[#02c294] transition-colors relative">
+                        <img src="./gopinadh4.jpg" alt="P. Gopinadh"
+                            class="w-full h-full rounded-[50%] object-cover group-hover:scale-105 transition-transform">
+                    </div>
+                    <h4 class="text-white font-bold font-headline text-xl mb-1">P. Gopinadh</h4>
+                    <p class="text-[#03ED38] text-[10px] font-label uppercase tracking-widest mb-4">Lead Algorithms
+                        Engineer</p>
+                    <p class="text-gray-200 text-sm font-body leading-relaxed">Specializes in neural redundancy
+                        filtering and deep-level data cluster analysis to optimize storage cycles.</p>
+                </div>
+
+                <!-- Person 2 -->
+                <div
+                    class="fade-up delay-300 card-lift glass-panel p-8 rounded-[30px] flex flex-col items-center text-center hover:border-[#02c294]/50 transition-colors group shadow-lg shadow-black/20 border border-[#02c294]/20">
+                    <div
+                        class="w-32 h-32 mb-6 rounded-[50%] p-1 border-2 border-[#02c294]/40 group-hover:border-[#02c294] transition-colors relative">
+                        <img src="./viraj.jpg" alt="D. Viraj"
+                            class="w-full h-full rounded-[50%] object-cover group-hover:scale-105 transition-transform">
+                    </div>
+                    <h4 class="text-white font-bold font-headline text-xl mb-1">D. Viraj</h4>
+                    <p class="text-[#03ED38] text-[10px] font-label uppercase tracking-widest mb-4">UI/UX Designer</p>
+                    <p class="text-gray-200 text-sm font-body leading-relaxed">Crafting intuitive dashboard experiences
+                        and interfaces to seamlessly visualize our carbon metrics.</p>
+                </div>
+
+                <!-- Person 3 -->
+                <div
+                    class="fade-up delay-400 card-lift glass-panel p-8 rounded-[30px] flex flex-col items-center text-center hover:border-[#02c294]/50 transition-colors group shadow-lg shadow-black/20 border border-[#02c294]/20">
+                    <div
+                        class="w-32 h-32 mb-6 rounded-[50%] p-1 border-2 border-[#02c294]/40 group-hover:border-[#02c294] transition-colors relative">
+                        <img src="./karthikeya4.png" alt="S. Karthikeya"
+                            class="w-full h-full rounded-[50%] object-cover group-hover:scale-105 transition-transform">
+                    </div>
+                    <h4 class="text-white font-bold font-headline text-xl mb-1">S. Karthikeya</h4>
+                    <p class="text-[#03ED38] text-[10px] font-label uppercase tracking-widest mb-4">Publication Head</p>
+                    <p class="text-gray-200 text-sm font-body leading-relaxed">Managing public outreach, documentation
+                        architectures, and maintaining the transparent stewardship ledger.</p>
+                </div>
+
+                <!-- Person 4 -->
+                <div
+                    class="fade-up delay-500 card-lift glass-panel p-8 rounded-[30px] flex flex-col items-center text-center hover:border-[#02c294]/50 transition-colors group shadow-lg shadow-black/20 border border-[#02c294]/20">
+                    <div
+                        class="w-32 h-32 mb-6 rounded-[50%] p-1 border-2 border-[#02c294]/40 group-hover:border-[#02c294] transition-colors relative">
+                        <img src="./ravi4.jpg" alt="K. Ravi"
+                            class="w-full h-full rounded-[50%] object-cover group-hover:scale-105 transition-transform">
+                    </div>
+                    <h4 class="text-white font-bold font-headline text-xl mb-1">K. Ravi</h4>
+                    <p class="text-[#03ED38] text-[10px] font-label uppercase tracking-widest mb-4">Researcher</p>
+                    <p class="text-gray-200 text-sm font-body leading-relaxed">Exploring cutting-edge innovations and
+                        modern techniques in computing for minimizing server energy draw.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const navMenu = document.getElementById("nav-menu");
+            const bubble = document.getElementById("nav-bubble");
+            const links = navMenu.querySelectorAll("a");
+
+            const currentPath = window.location.pathname.split("/").pop() || "index.html";
+            let activeLink = null;
+
+            links.forEach(link => {
+                if (link.getAttribute("href") === currentPath || (currentPath === "" && link.getAttribute("href") === "index.html")) {
+                    activeLink = link;
+                    link.classList.remove("text-[#ffffff]");
+                    link.classList.add("text-[#5ff6c4]");
+                }
+            });
+
+            function moveBubble(target) {
+                if (!target) return;
+                const targetRect = target.getBoundingClientRect();
+                const containerRect = navMenu.getBoundingClientRect();
+
+                const extraHeight = 16;
+                bubble.style.width = `${targetRect.width}px`;
+                bubble.style.height = `${targetRect.height + extraHeight}px`;
+                bubble.style.left = `${targetRect.left - containerRect.left}px`;
+                bubble.style.top = `${targetRect.top - containerRect.top - (extraHeight / 2)}px`;
+                bubble.style.opacity = "1";
+            }
+
+            setTimeout(() => { if (activeLink) moveBubble(activeLink); }, 100);
+            window.addEventListener("resize", () => { if (activeLink) moveBubble(activeLink); });
+
+            links.forEach(link => {
+                link.addEventListener("mouseenter", () => moveBubble(link));
+                link.addEventListener("mouseleave", () => {
+                    if (activeLink) moveBubble(activeLink);
+                    else bubble.style.opacity = "0";
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
